@@ -20,6 +20,7 @@
 package com.fmh.sr
 
 import se.scalablesolutions.akka.actor._
+import se.scalablesolutions.akka.actor.Actor._
 import se.scalablesolutions.akka.util.UUID
 import se.scalablesolutions.akka.remote.{RemoteClient, RemoteNode}
 import se.scalablesolutions.akka.util.Logging
@@ -27,15 +28,17 @@ import Actor._
 
 class TestClientActor extends Actor {
   def receive = {
+    case ("send ping",akt:ActorRef) => akt ! "ping"
     case "pong" => println("got pong")
-    case _ => throw new RuntimeException("received unknown message")
+    case m => throw new RuntimeException("received unknown message: "+m)
   }
 }
 
 object TestClient {
   def apply() = {
-    val remActor = RemoteClient.actorFor("server","localhost",9999)
-    val msgReply = remActor !! "ping"
-    Console println msgReply
+    val remActor = RemoteClient.actorFor("srv","localhost",9999)
+    val client = Actor.actorOf[TestClientActor]
+    client.start
+    client ! ("send ping",remActor)
   }
 }

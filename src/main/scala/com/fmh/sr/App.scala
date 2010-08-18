@@ -25,9 +25,16 @@ package com.fmh.sr
  */
 object App {
   def main(args: Array[String]) {
+    println("Starting Program")
     args(0) match {
-      case "--server" => Server()
-      case "--client" => TestClient()
+      case "--server" => {
+        println("################ SERVER")
+        Server()
+      }
+      case "--client" => {
+        println("################ CLIENT")
+        TestClient()
+      }
     }
   }
 }
