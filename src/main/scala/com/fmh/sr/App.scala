@@ -29,7 +29,7 @@ object App {
     args(0) match {
       case "--server" => {
         println("################ SERVER")
-        Server()
+        Server(args(1))
       }
       case "--client" => {
         println("################ CLIENT")

@@ -35,8 +35,8 @@ class ServerActor extends Actor {
 }
 
 object Server {
-  def apply() = {
-    RemoteNode.start("localhost", 9999)
+  def apply(host_ip: String) = {
+    RemoteNode.start(host_ip, 9999)
     RemoteNode.register("srv", actorOf[ServerActor])
   }
 }
