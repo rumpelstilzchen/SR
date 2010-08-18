@@ -33,7 +33,7 @@ object App {
       }
       case "--client" => {
         println("################ CLIENT")
-        TestClient()
+        TestClient(args(1))
       }
     }
   }

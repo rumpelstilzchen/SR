@@ -35,8 +35,8 @@ class TestClientActor extends Actor {
 }
 
 object TestClient {
-  def apply() = {
-    val remActor = RemoteClient.actorFor("srv","localhost",9999)
+  def apply(srv_ip:String) = {
+    val remActor = RemoteClient.actorFor("srv",srv_ip,9999)
     val client = Actor.actorOf[TestClientActor]
     client.start
     client ! ("send ping",remActor)
