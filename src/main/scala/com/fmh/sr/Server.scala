@@ -19,15 +19,24 @@
 
 package com.fmh.sr
 
-/**
- * Hello world!
- *
- */
-object App {
-  def main(args: Array[String]) {
-    args(0) match {
-      case "--server" => Server()
-      case "--client" => TestClient()
-    }
+import se.scalablesolutions.akka.actor._
+import se.scalablesolutions.akka.util.UUID
+import se.scalablesolutions.akka.remote.{RemoteClient, RemoteNode}
+import se.scalablesolutions.akka.util.Logging
+import Actor._
+
+class ServerActor extends Actor {
+  self.id = UUID.newUuid.toString
+
+  def receive = {
+    case "ping" => self reply "pong"
+    case _ => throw new RuntimeException("received unknown message")
+  }
+}
+
+object Server {
+  def apply() = {
+    RemoteNode.start("localhost", 9999)
+    RemoteNode.register("server", actorOf[ServerActor])
   }
 }
