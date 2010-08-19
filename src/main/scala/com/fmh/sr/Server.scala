@@ -28,18 +28,15 @@ import se.scalablesolutions.akka.config.ScalaConfig._
 import Actor._
 
 class ServerActor extends Actor {
+
+  self.faultHandler = Some(OneForOneStrategy(5, 5000))
+  self.trapExit = List(classOf[Exception])
+
   self.id = UUID.newUuid.toString
 
   def receive = {
     case "ping" => {
       println("got ping")
-      self.sender match {
-        case Some(snd) => {
-          println("--> lifeCycle of sender is: "+snd.lifeCycle)
-          snd.lifeCycle = Some(LifeCycle(Temporary))
-          println("--> lifeCycle of sender is: "+snd.lifeCycle)
-        }
-      }
       self reply "pong"
     }
     case _ => throw new RuntimeException("received unknown message")
@@ -49,6 +46,6 @@ class ServerActor extends Actor {
 object Server {
   def apply(host_ip: String) = {
     RemoteNode.start(host_ip, 9999)
-    RemoteNode.register("srv", actorOf[ServerActor])
+    RemoteNode.register("srv:service", actorOf[ServerActor])
   }
 }

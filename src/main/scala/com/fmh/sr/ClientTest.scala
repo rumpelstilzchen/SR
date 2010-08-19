@@ -28,33 +28,20 @@ import se.scalablesolutions.akka.config.OneForOneStrategy
 import se.scalablesolutions.akka.config.ScalaConfig._
 import Actor._
 
-class TestClientActor extends Actor {
+class TestClientActor(val srvIp:String) extends Actor {
+  val remAkt = RemoteClient.actorFor("srv:service",srvIp,9999)
+
   def receive = {
-    case ("send ping",akt:ActorRef) => akt ! "ping"
+    case ("send ping") => remAkt ! "ping"
     case "pong" => {
       println("got pong")
     }
-    case m => throw new RuntimeException("received unknown message: "+m)
   }
 }
 
 object TestClient {
-  val supervisor = Supervisor(
-    SupervisorConfig(
-      RestartStrategy(OneForOne, 3, 1000, List(classOf[Exception])),
-      Nil
-    )
-  )
-
   def apply(srv_ip:String) = {
-    val remActor = RemoteClient.actorFor("srv",srv_ip,9999)
-    val client = Actor.actorOf[TestClientActor]
-    
-    client.lifeCycle = Some(LifeCycle(Temporary))
-    supervisor link client
-
-
-    client.start
-    client ! ("send ping",remActor)
+    val client = actorOf(new TestClientActor(srv_ip)).start
+    client ! "send ping"
   }
 }
