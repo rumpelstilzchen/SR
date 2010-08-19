@@ -31,7 +31,17 @@ class ServerActor extends Actor {
   self.id = UUID.newUuid.toString
 
   def receive = {
-    case "ping" => self reply "pong"
+    case "ping" => {
+      println("got ping")
+      self.sender match {
+        case Some(snd) => {
+          println("--> lifeCycle of sender is: "+snd.lifeCycle)
+          snd.lifeCycle = Some(LifeCycle(Temporary))
+          println("--> lifeCycle of sender is: "+snd.lifeCycle)
+        }
+      }
+      self reply "pong"
+    }
     case _ => throw new RuntimeException("received unknown message")
   }
 }
