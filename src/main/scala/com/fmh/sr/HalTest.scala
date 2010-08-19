@@ -44,15 +44,8 @@ object HalTest {
 	println("Starting Supervisor Test Client")
 	HalTestClient
       }
-      case "debug" => {
-	TestObject
-      }
     }
   }
-}
-
-object TestObject {
-    println("Was called!")
 }
 
 class HalTestClientActor extends Actor {
