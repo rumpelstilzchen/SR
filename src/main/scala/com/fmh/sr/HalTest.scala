@@ -38,10 +38,56 @@ object HalTest {
     args match {
       case "server" => {
 	println("Starting Supervisor Test Server")
+	HalTestServer
       }
       case "client" => {
 	println("Starting Supervisor Test Client")
+	HalTestClient
+      }
+      case "debug" => {
+	TestObject
       }
     }
   }
+}
+
+object TestObject {
+    println("Was called!")
+}
+
+class HalTestClientActor extends Actor {
+  val remAkt = RemoteClient.actorFor("service","localhost",9999)
+
+  def receive = {
+    case ("send ping") => remAkt ! "ping"
+    case "pong" => {
+      println("got pong")
+    }
+  }
+}
+
+object HalTestClient {
+    val client = actorOf(new HalTestClientActor).start
+    client ! "send ping"
+}
+
+class HalTestServerActor extends Actor {
+
+  self.faultHandler = Some(OneForOneStrategy(5, 5000))
+  self.trapExit = List(classOf[Exception])
+
+  self.id = UUID.newUuid.toString
+
+  def receive = {
+    case "ping" => {
+      println("got ping")
+      self reply "pong"
+    }
+    case _ => throw new RuntimeException("received unknown message")
+  }
+}
+
+object HalTestServer {
+    RemoteNode.start("localhost", 9999)
+    RemoteNode.register("service", actorOf[HalTestServerActor])
 }
