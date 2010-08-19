@@ -19,10 +19,7 @@
 
 package com.fmh.sr
 
-/**
- * Hello world!
- *
- */
+
 object App {
   def main(args: Array[String]) {
     println("Starting Program")
@@ -34,6 +31,10 @@ object App {
       case "--client" => {
         println("################ CLIENT")
         TestClient(args(1))
+      }
+      case "--haltest" => {
+	println("################ SUPERVISOR TEST")
+	
       }
     }
   }
