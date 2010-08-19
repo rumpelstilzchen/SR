@@ -29,7 +29,9 @@ import Actor._
 class TestClientActor extends Actor {
   def receive = {
     case ("send ping",akt:ActorRef) => akt ! "ping"
-    case "pong" => println("got pong")
+    case "pong" => {
+      println("got pong")
+    }
     case m => throw new RuntimeException("received unknown message: "+m)
   }
 }
