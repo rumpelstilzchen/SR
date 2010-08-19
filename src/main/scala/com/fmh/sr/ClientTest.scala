@@ -24,6 +24,8 @@ import se.scalablesolutions.akka.actor.Actor._
 import se.scalablesolutions.akka.util.UUID
 import se.scalablesolutions.akka.remote.{RemoteClient, RemoteNode}
 import se.scalablesolutions.akka.util.Logging
+import se.scalablesolutions.akka.config.OneForOneStrategy
+import se.scalablesolutions.akka.config.ScalaConfig._
 import Actor._
 
 class TestClientActor extends Actor {
@@ -37,9 +39,21 @@ class TestClientActor extends Actor {
 }
 
 object TestClient {
+  val supervisor = Supervisor(
+    SupervisorConfig(
+      RestartStrategy(OneForOne, 3, 1000, List(classOf[Exception])),
+      Nil
+    )
+  )
+
   def apply(srv_ip:String) = {
     val remActor = RemoteClient.actorFor("srv",srv_ip,9999)
     val client = Actor.actorOf[TestClientActor]
+    
+    client.lifeCycle = Some(LifeCycle(Temporary))
+    supervisor link client
+
+
     client.start
     client ! ("send ping",remActor)
   }

@@ -30,23 +30,8 @@ import Actor._
 class ServerActor extends Actor {
   self.id = UUID.newUuid.toString
 
-  val supervisor = Supervisor(
-    SupervisorConfig(
-      RestartStrategy(OneForOne, 3, 1000, List(classOf[Exception])),
-      Nil
-    )
-  )
-
   def receive = {
-    case "ping" => {
-      self.sender match {
-        case Some(snd) => {
-          snd.lifeCycle = Some(LifeCycle(Temporary))
-          supervisor link snd
-        }
-      }
-      self reply "pong"
-    }
+    case "ping" => self reply "pong"
     case _ => throw new RuntimeException("received unknown message")
   }
 }
