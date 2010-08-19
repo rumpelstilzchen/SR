@@ -32,3 +32,16 @@ import se.scalablesolutions.akka.config.ScalaConfig._
 import Actor._
 
 class HalTestSupervisor
+
+object HalTest {
+  def apply(args:String) = {
+    args match {
+      case "server" => {
+	println("Starting Supervisor Test Server")
+      }
+      case "client" => {
+	println("Starting Supervisor Test Client")
+      }
+    }
+  }
+}
