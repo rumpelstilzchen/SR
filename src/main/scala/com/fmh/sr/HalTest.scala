@@ -19,6 +19,10 @@
 
 package com.fmh.sr
 
+/**
+Testing functionality of scala supervisors
+**/
+
 import se.scalablesolutions.akka.actor._
 import se.scalablesolutions.akka.util.UUID
 import se.scalablesolutions.akka.remote._
@@ -27,28 +31,4 @@ import se.scalablesolutions.akka.config.OneForOneStrategy
 import se.scalablesolutions.akka.config.ScalaConfig._
 import Actor._
 
-class ServerActor extends Actor {
-  self.id = UUID.newUuid.toString
-
-  def receive = {
-    case "ping" => {
-      println("got ping")
-      self.sender match {
-        case Some(snd) => {
-          println("--> lifeCycle of sender is: "+snd.lifeCycle)
-          snd.lifeCycle = Some(LifeCycle(Temporary))
-          println("--> lifeCycle of sender is: "+snd.lifeCycle)
-        }
-      }
-      self reply "pong"
-    }
-    case _ => throw new RuntimeException("received unknown message")
-  }
-}
-
-object Server {
-  def apply(host_ip: String) = {
-    RemoteNode.start(host_ip, 9999)
-    RemoteNode.register("srv", actorOf[ServerActor])
-  }
-}
+class HalTestSupervisor
