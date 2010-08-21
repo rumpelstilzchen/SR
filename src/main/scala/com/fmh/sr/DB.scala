@@ -40,16 +40,27 @@ class DB extends Actor {
   }
 
   def receive = {
-    case Add(k,v) => db += (k,v)
-    case Get(k) => self reply db(k)
+    case DB.Add(k,v) => atomic {
+      db += (k.asInstanceOf[AnyRef],v.asInstanceOf[AnyRef])
+    }
+    case DB.Get(k) => self reply atomic {
+      self reply db.get(k.asInstanceOf[AnyRef])
+    }
   }
+}
 
-  case class Add(k:AnyRef, v:AnyRef)
-  case class Get(k:AnyRef)
+object DB {
+  case class Add(k:Any, v:Any)
+  case class Get(k:Any)
 }
 
 object DBTest {
   def apply() {
     val storage = actorOf[DB].start
+    storage !! new DB.Add(1,"roman")
+    storage !! new DB.Add(2,"halconnen")
+    storage !! new DB.Add(2,"hendrik")
+    println(storage !! new DB.Get(1))
+    println(storage !! new DB.Get(2))
   }
 }
