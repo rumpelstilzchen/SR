@@ -33,7 +33,7 @@ class DB extends Actor {
 
   val FILENAME = "nodes.db"
   private var db = atomic { MongoStorage.getMap(FILENAME) }
-  log.info("Redis-based database started...")
+  log.info("MongoDB started...")
 
   override def postRestart(reason: Throwable) = {
     db = atomic { MongoStorage.getMap(FILENAME) }
