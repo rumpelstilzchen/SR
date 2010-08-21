@@ -34,7 +34,7 @@ object App {
       }
       case "--haltest" => {
 	println("################ SUPERVISOR TEST")
-	
+	HalTest(args(1))
       }
     }
   }
