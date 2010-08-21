@@ -50,6 +50,6 @@ class DB extends Actor {
 
 object DBTest {
   def apply() {
-    println("does nothing yet")
+    val storage = actorOf[DB].start
   }
 }

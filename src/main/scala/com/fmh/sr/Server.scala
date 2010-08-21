@@ -38,24 +38,29 @@ class ServerActor extends Actor {
       println("got ping")
       self.sender match {
         case Some(snd) => {
-          //Is Actor
-/*          if(!(clients exists (_==snd))) {
-            val remClient = RemoteClient.clientFor(snd.homeAddress)
-            println("remaddr.: "+snd.homeAddress)
-            remClient.registerListener(self)
-            println("registered on RemoteClient")
-            clients ::= snd
-          }*/
-          self reply "pong"
+          val remC = RemoteClient.clientFor(snd.getHomeAddress)
+          remC addListener self
+          (remShutClients find (_==remC)) match {
+            case Some(client) => {
+              log.info("client already shut down, reconnecting")
+              client.connect
+            }
+            case None => ;
+          }
         }
+        case None => ;
       }
+      log.info("sending pong")
+      self reply "pong"
     }
-    case x => {
-      println("recv unkn. msg.: "+x)
+    case RemoteClientShutdown(cl) => {
+      remShutClients ::= cl
+      log.info("added shut client")
     }
+    case _ => ;
   }
 
-  var clients: List[ActorRef] = Nil
+  private var remShutClients: List[RemoteClient] = List()
 }
 
 object Server {

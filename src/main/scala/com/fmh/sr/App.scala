@@ -36,6 +36,10 @@ object App {
 	println("################ SUPERVISOR TEST")
 	HalTest(args(1))
       }
+      case "--dbtest" => {
+        println("################ DB Test")
+        DBTest()
+      }
     }
   }
 }
