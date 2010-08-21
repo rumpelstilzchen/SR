@@ -49,7 +49,7 @@ object HalTest {
 }
 
 class HalTestClientActor extends Actor {
-  val remAkt = RemoteClient.actorFor("service","localhost",9999)
+  val remAkt = RemoteClient.actorFor("service","localhost",9998)
 
   def receive = {
     case ("send ping") => remAkt ! "ping"
@@ -81,6 +81,6 @@ class HalTestServerActor extends Actor {
 }
 
 object HalTestServer {
-    RemoteNode.start("localhost", 9999)
+    RemoteNode.start("localhost", 9998)
     RemoteNode.register("service", actorOf[HalTestServerActor])
 }
