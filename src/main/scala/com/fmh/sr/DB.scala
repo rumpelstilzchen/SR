@@ -57,10 +57,10 @@ object DB {
 object DBTest {
   def apply() {
     val storage = actorOf[DB].start
-    storage !! new DB.Add(1,"roman")
-    storage !! new DB.Add(2,"halconnen")
-    storage !! new DB.Add(2,"hendrik")
-    println(storage !! new DB.Get(1))
-    println(storage !! new DB.Get(2))
+    storage !! DB.Add(1,"roman")
+    storage !! DB.Add(2,"halconnen")
+    storage !! DB.Add(2,"hendrik")
+    println(storage !! DB.Get(1))
+    println(storage !! DB.Get(2))
   }
 }
