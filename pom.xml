@@ -47,8 +47,18 @@
   <dependencies>
     <dependency>
       <groupId>se.scalablesolutions.akka</groupId>
-      <artifactId>akka-core_2.8.0.RC3</artifactId>
-      <version>0.9.1</version>
+      <artifactId>akka-core_2.8.0</artifactId>
+      <version>0.10</version>
+    </dependency>
+    <dependency>
+      <groupId>se.scalablesolutions.akka</groupId>
+      <artifactId>akka-persistence-common_2.8.0</artifactId>
+      <version>0.10</version>
+    </dependency>
+    <dependency>
+      <groupId>se.scalablesolutions.akka</groupId>
+      <artifactId>akka-persistence-mongo_2.8.0</artifactId>
+      <version>0.10</version>
     </dependency>
     <dependency>
       <groupId>org.scala-lang</groupId>

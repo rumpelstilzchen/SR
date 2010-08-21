@@ -2,12 +2,15 @@ akka {
   remote {
     compression-scheme = "zlib"
     zlib-compression-level = 9
+
+    client {
+      reconnection-time-window = 0 # in seconds
+    }
     
     server {
       service = on
       hostname = "kira"
       port = 9998
       connection-timeout = 1000 # in millis
-    }
   }
 }

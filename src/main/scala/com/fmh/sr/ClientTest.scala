@@ -22,7 +22,6 @@ package com.fmh.sr
 import se.scalablesolutions.akka.actor._
 import se.scalablesolutions.akka.util.UUID
 import se.scalablesolutions.akka.remote._
-import se.scalablesolutions.akka.util.Logging
 import se.scalablesolutions.akka.config.OneForOneStrategy
 import se.scalablesolutions.akka.config.ScalaConfig._
 import Actor._

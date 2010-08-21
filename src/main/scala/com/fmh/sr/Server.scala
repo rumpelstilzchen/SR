@@ -22,7 +22,6 @@ package com.fmh.sr
 import se.scalablesolutions.akka.actor._
 import se.scalablesolutions.akka.util.UUID
 import se.scalablesolutions.akka.remote._
-import se.scalablesolutions.akka.util.Logging
 import se.scalablesolutions.akka.config.OneForOneStrategy
 import se.scalablesolutions.akka.config.ScalaConfig._
 import Actor._
@@ -32,15 +31,31 @@ class ServerActor extends Actor {
   self.faultHandler = Some(OneForOneStrategy(5, 5000))
   self.trapExit = List(classOf[Exception])
 
-  self.id = UUID.newUuid.toString
+  //self.id = UUID.newUuid.toString
 
   def receive = {
     case "ping" => {
       println("got ping")
-      self reply "pong"
+      self.sender match {
+        case Some(snd) => {
+          //Is Actor
+/*          if(!(clients exists (_==snd))) {
+            val remClient = RemoteClient.clientFor(snd.homeAddress)
+            println("remaddr.: "+snd.homeAddress)
+            remClient.registerListener(self)
+            println("registered on RemoteClient")
+            clients ::= snd
+          }*/
+          self reply "pong"
+        }
+      }
     }
-    case _ => throw new RuntimeException("received unknown message")
+    case x => {
+      println("recv unkn. msg.: "+x)
+    }
   }
+
+  var clients: List[ActorRef] = Nil
 }
 
 object Server {
