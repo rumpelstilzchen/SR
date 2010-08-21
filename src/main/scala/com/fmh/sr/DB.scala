@@ -57,7 +57,11 @@ object DB {
 object DBTest {
   def apply() {
     val storage = actorOf[DB].start
+<<<<<<< HEAD
     println(storage !! DB.Add(1,"roman"))
+=======
+    storage !! DB.Add(1,"roman")
+>>>>>>> c2069651b35136d97c40c1b2767da838bfa12626
     storage !! DB.Add(2,"halconnen")
     storage !! DB.Add(2,"hendrik")
     println(storage !! DB.Get(1))
