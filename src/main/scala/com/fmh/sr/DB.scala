@@ -40,9 +40,16 @@ class DB(dbName: String) extends Actor {
   }
 
   def receive = {
-    case DB.Clear => self reply_? atomic { db.clear }
     case DB.Put(k,v) => self reply_? atomic { db.put(k,v) }
+    case DB.PutNode(n) => self reply_? atomic { db.put(n.uuid,n.data) }
     case DB.Get(k) => self reply atomic { db.get(k) }
+    case DB.GetNode(u) => self reply atomic {
+      db.get(u) match {
+        case None => None
+        case Some(data) => Node(u,data)
+      }
+    }
+    case DB.Clear => self reply_? atomic { db.clear }
   }
 }
 
@@ -58,19 +65,28 @@ object DB {
   }
 
   case class Put(k:AnyRef, v:AnyRef)
+  case class PutNode(n:Node)
   case class Get(k:AnyRef)
+  case class GetNode(n:String)
   case class Clear
 }
 
 object DBTest {
   def apply() {
     val s = DB("sr.nodes")
+
     s ! DB.Put("1","roman")
     s !! DB.Put("2","hendrik")
     s !! DB.Put("1","fmh")
-    println(s !! DB.Get("2"))
-    s !! DB.Clear
-    println(s !! DB.Get("2"))
+    
+    val n = Node("ROMAN IST TOLL")
+    println(n)
+
+    s !! DB.PutNode(n)
+    println(s !! DB.GetNode(n.uuid))
+
+    println(s !! DB.Clear)
+    println(s !! DB.GetNode(n.uuid))
 
     System exit 0
   }
