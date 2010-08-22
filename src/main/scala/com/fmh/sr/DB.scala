@@ -31,33 +31,42 @@ import ScalaConfig._
 class DB extends Actor {
   self.lifeCycle = Some(LifeCycle(Permanent))
 
-  val FILENAME = "nodes.db"
-  private var db = atomic { MongoStorage.getMap(FILENAME) }
+  val DB_NAME = "sr.nodes"
+  private var db = atomic { MongoStorage.getMap(DB_NAME) }
   log.info("MongoDB started...")
 
   override def postRestart(reason: Throwable) = {
-    db = atomic { MongoStorage.getMap(FILENAME) }
+    db = atomic { MongoStorage.getMap(DB_NAME) }
   }
 
   def receive = {
-    case DB.Add(k,v) => atomic {
-      self reply db.put(k.asInstanceOf[AnyRef],v.asInstanceOf[AnyRef])
+    case DB.Put(k,v) => atomic {
+      self reply db.put(k,v)
     }
     case DB.Get(k) => self reply atomic {
-      self reply db.get(k.asInstanceOf[AnyRef])
+      db.get(k) match {
+        case Some(v) => self reply v
+        case _ => ;
+      }
     }
   }
 }
 
 object DB {
-  case class Add(k:Any, v:Any)
-  case class Get(k:Any)
+  case class Put(k:AnyRef, v:AnyRef)
+  case class Get(k:AnyRef)
 }
 
 object DBTest {
   def apply() {
-    val storage = MongoStorage.newMap
+    val s = actorOf[DB].start
+    s !! DB.Put("1","roman")
+    s !! DB.Put("2","hendrik")
+    s !! DB.Put("1","fmh")
+    println(s !! DB.Get("1"))
+
+    /*val storage = MongoStorage.newMap
     atomic {storage.put("1","roman")}
-    atomic {println(storage.get("1"))}
+    atomic {println(storage.get("1"))}*/
   }
 }

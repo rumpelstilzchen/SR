@@ -31,7 +31,7 @@ class ServerActor extends Actor {
   self.faultHandler = Some(OneForOneStrategy(5, 5000))
   self.trapExit = List(classOf[Exception])
 
-  //self.id = UUID.newUuid.toString
+  self.id = UUID.newUuid.toString
 
   def receive = {
     case "ping" => {
