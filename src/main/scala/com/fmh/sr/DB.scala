@@ -41,7 +41,7 @@ class DB extends Actor {
 
   def receive = {
     case DB.Add(k,v) => atomic {
-      db += (k.asInstanceOf[AnyRef],v.asInstanceOf[AnyRef])
+      self reply db.put(k.asInstanceOf[AnyRef],v.asInstanceOf[AnyRef])
     }
     case DB.Get(k) => self reply atomic {
       self reply db.get(k.asInstanceOf[AnyRef])
@@ -56,11 +56,15 @@ object DB {
 
 object DBTest {
   def apply() {
-    val storage = actorOf[DB].start
+    /*val storage = actorOf[DB]
+    storage.start
     storage !! DB.Add(1,"roman")
     storage !! DB.Add(2,"halconnen")
     storage !! DB.Add(2,"hendrik")
     println(storage !! DB.Get(1))
-    println(storage !! DB.Get(2))
+    println(storage !! DB.Get(2))*/
+    val storage = MongoStorage.newMap
+    atomic {storage.put("1","roman")}
+    atomic {println(storage.get("1"))}
   }
 }
