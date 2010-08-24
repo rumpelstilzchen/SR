@@ -30,7 +30,9 @@ class TestClientActor(val srvIp:String) extends Actor {
   val remAkt = RemoteClient.actorFor("srv:service",srvIp,9999)
 
   def receive = {
-    case ("send ping") => remAkt ! "ping"
+    case ("send ping") => {
+      remAkt ! "ping"
+    }
     case "pong" => {
       println("got pong")
     }

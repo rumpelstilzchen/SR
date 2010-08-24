@@ -39,28 +39,26 @@ class ServerActor extends Actor {
       self.sender match {
         case Some(snd) => {
           val remC = RemoteClient.clientFor(snd.getHomeAddress)
-          remC addListener self
-          (remShutClients find (_==remC)) match {
-            case Some(client) => {
-              log.info("client already shut down, reconnecting")
-              client.connect
-            }
-            case None => ;
-          }
+          remC.addListener(actorOf[RemoteClientShutter].start)
+          remC.connect
         }
         case None => ;
       }
-      log.info("sending pong")
       self reply "pong"
     }
-    case RemoteClientShutdown(cl) => {
-      remShutClients ::= cl
-      log.info("added shut client")
-    }
-    case _ => ;
   }
 
   private var remShutClients: List[RemoteClient] = List()
+}
+
+class RemoteClientShutter extends Actor {
+  def receive = {
+    case RemoteClientDisconnected(c) => {
+      log.info("SHUTTING DOWN!")
+      c.shutdown
+    }
+    case _ => ;
+  }  
 }
 
 object Server {
