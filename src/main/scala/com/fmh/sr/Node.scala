@@ -19,17 +19,16 @@
 
 package com.fmh.sr
 
-import se.scalablesolutions.akka.util.UUID
-
 @serializable
 @SerialVersionUID(0)
-class Node(uuid_c: Long,data_c: AnyRef) {
-  val uuid: Long   = uuid_c
-  val data: AnyRef = data_c
+class Node[T <: AnyRef](uuid_c: Long,data_c: T) {
+  val uuid: Long = uuid_c
+  val data: T    = data_c
   override def toString(): String = "Node["+uuid+"]"
 }
 
 object Node {
-  def apply(data: AnyRef): Node = new Node(UUID.newUuid,data)
-  def apply(uuid: Long, data: AnyRef): Node = new Node(uuid,data)
+  def apply[T <: AnyRef](data: T): Node[T] = new Node[T](UGen.newUUID,data)
+  def apply[T <: AnyRef](uuid: Long, data: T): Node[T] = new Node[T](uuid,data)
 }
+

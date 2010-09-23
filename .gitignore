@@ -4,4 +4,4 @@
 target
 logs
 config/akka.conf
-
+embedded-repo

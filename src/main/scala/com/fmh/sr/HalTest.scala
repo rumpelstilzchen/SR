@@ -19,12 +19,11 @@
 
 package com.fmh.sr
 
-/**
+/*
 Testing functionality of scala supervisors
-**/
+*/
 
 import se.scalablesolutions.akka.actor._
-import se.scalablesolutions.akka.util.UUID
 import se.scalablesolutions.akka.remote._
 import se.scalablesolutions.akka.util.Logging
 import se.scalablesolutions.akka.config.OneForOneStrategy
@@ -69,7 +68,7 @@ class HalTestServerActor extends Actor {
   self.faultHandler = Some(OneForOneStrategy(5, 5000))
   self.trapExit = List(classOf[Exception])
 
-  self.id = UUID.newUuid.toString
+  self.id = UGen.newUUID.toString
 
   def receive = {
     case "ping" => {

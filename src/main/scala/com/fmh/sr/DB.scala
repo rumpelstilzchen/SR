@@ -19,55 +19,67 @@
 
 package com.fmh.sr
 
+import se.scalablesolutions.akka.stm.Transaction.Global._
 import se.scalablesolutions.akka.config._
 import se.scalablesolutions.akka.actor._
-import se.scalablesolutions.akka.util._
-import se.scalablesolutions.akka.persistence.common._
-import se.scalablesolutions.akka.persistence.mongo._
-import se.scalablesolutions.akka.stm.Transaction.Global._
+import com.redis._
 import Actor._
 import ScalaConfig._
 import java.io._
 
-class DB(dbName: String) extends Actor {
+class DB(collName: String) extends Actor {
   self.lifeCycle = Some(LifeCycle(Permanent))
 
-  private var db = atomic { MongoStorage.getMap(dbName) }
+  private var db = getDB
 
-  log.info("MongoDB started...")
-
+  private def getDB() :RedisClient = {
+    val r = atomic { new RedisClient("localhost",6379) }
+    log.info("Connected to Redis DB...")
+    return r
+  }
+  
   override def postRestart(reason: Throwable) = {
-    db = atomic { MongoStorage.getMap(dbName) }
+    db = getDB
   }
 
-  private def toByteArray(obj: AnyRef) : Array[Byte] = {
+  private def toStr(obj: AnyRef): String = {
     val bos = new ByteArrayOutputStream
     val oos = new ObjectOutputStream(bos)
-    oos writeObject obj
+    oos.writeObject(obj)
     oos.close
-    return bos.toByteArray
+    return new String(bos.toByteArray)
   }
 
-  private def fromByteArray[T](arr: Array[Byte]) : T = {
-    val bis = new ByteArrayInputStream(arr)
-    val ois = new ObjectInputStream(bis)
-    return ois.readObject.asInstanceOf[T]
+  private def fromStr[T](key: String): Option[T] = {
+    db.get(key) match {
+      case Some(s) => {
+	val bytes = s.getBytes
+	val bis = new ByteArrayInputStream(bytes)
+	val ois = new ObjectInputStream(bis)
+	return Some(ois.readObject.asInstanceOf[T])
+      }
+      case None => return None
+    }
   }
 
   def receive = {
-/*    case DB.Put(k,v) => self reply_? atomic {
-      db.put(k,v) 
+    case DB.Put(k,v) => {
+      atomic { db.set(k.toString,toStr(v)) }
     }
-    case DB.PutNode(n) => self reply_? atomic { db.put(n.uuid,n.data) }
-    case DB.Get(k) => self reply atomic { db.get(k) }
-    case DB.GetNode(u) => self reply atomic {
-      db.get(u) match {
-        case None => None
-        case Some(data) => Node(u,data)
+    case (x:DB.Get[t]) => {
+      atomic {db.get(x.k.toString) } match {
+	case Some(str) => self reply fromStr[t](str)
+	case None => self reply None
       }
     }
-    case DB.Clear => self reply_? atomic { db.clear }*/
-    case x:String => println("got: "+x);
+    //    case DB.PutNode(n) => atomic { self reply_? (db += n.uuid -> n.data) }
+    //    case x:DB.GetNode[t](u) => self reply atomic {
+    //      get(u) match {
+    //        case None => None
+    //        case Some(data) => Node(u,data)
+    //      }
+    //    }
+    //    case DB.Clear => self reply_? atomic { db.clear }
   }
 }
 
@@ -78,14 +90,14 @@ object DB {
     val storage = apply(dbName)
     storage !! Clear match {
       case (Some(())) => return storage
-      case res => throw new RuntimeException("could not empty mongo storage, res: "+res)
+      case res => throw new RuntimeException("could not empty redis storage, res: "+res)
     }
   }
 
   case class Put(k: Long, v:AnyRef)
-  case class PutNode(n:Node)
-  case class Get(k: Long)
-  case class GetNode(n:String)
+  case class PutNode[T <: AnyRef](n:Node[T])
+  case class Get[T](k: Long)
+  case class GetNode[T](n:String)
   case class Clear
 }
 
@@ -93,18 +105,21 @@ object DBTest {
   def apply() {
     val s = DB("sr.nodes")
 
-/*    s ! DB.Put("1","roman")
-    s !! DB.Put("2","hendrik")
-    s !! DB.Put("1","fmh")
+    println(s !! DB.Put(1,"roman"))
+    println(s !! DB.Put(2,"hendrik"))
+    println(s !! DB.Put(1,"fmh"))
     
-    val n = Node("ROMAN IST TOLL")
-    println(n)
+    /*    val n = Node("ROMAN IST TOLL")
+     println(n)
 
-    s !! DB.PutNode(n)
-    println(s !! DB.GetNode(n.uuid))
+s !! DB.PutNode(n)
+println(s !! DB.GetNode(n.uuid))
 
-    println(s !! DB.Clear)
-    println(s !! DB.GetNode(n.uuid))*/
+println(s !! DB.Clear)
+println(s !! DB.GetNode(n.uuid))*/
+
+    println(s !! DB.Get[String](1))
+    println(s !! DB.Get[String](2))
 
     System exit 0
   }
