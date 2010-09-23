@@ -15,6 +15,16 @@
       <url>http://www.scalablesolutions.se/akka/repository/ </url>
     </repository>
     <repository>
+      <id>Akka Embedded</id>
+      <name>Akka Embedded Maven2 Repository</name>
+      <url>file://embedded-repo </url>
+    </repository>
+    <repository>
+      <id>Casbah</id>
+      <name>Casbah Repo</name>
+      <url>http://repo.bumnetworks.com/releases/ </url>
+    </repository>
+    <repository>
       <id>Multiverse</id>
       <name>Multiverse Maven2 Repository</name>
       <url>http://multiverse.googlecode.com/svn/maven-repository/releases/</url>
@@ -47,7 +57,12 @@
   <dependencies>
     <dependency>
       <groupId>se.scalablesolutions.akka</groupId>
-      <artifactId>akka-core_2.8.0</artifactId>
+      <artifactId>akka-actor_2.8.0</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>se.scalablesolutions.akka</groupId>
+      <artifactId>akka-remote_2.8.0</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -62,30 +77,8 @@
     </dependency>
     <dependency>
       <groupId>org.scala-lang</groupId>
-      <artifactId>scala-dbc</artifactId>
-      <version>2.8.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-swing</artifactId>
-      <version>${scala.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
       <version>${scala.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.4</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.specs</groupId>
-      <artifactId>specs</artifactId>
-      <version>1.2.5</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -141,7 +134,6 @@
       </plugin>
     </plugins>
   </build>
-
   <reporting>
     <plugins>
       <plugin>

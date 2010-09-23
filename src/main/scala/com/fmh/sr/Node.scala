@@ -21,13 +21,15 @@ package com.fmh.sr
 
 import se.scalablesolutions.akka.util.UUID
 
-class Node(uuid_c: String,data_c: AnyRef) {
-  val uuid = uuid_c
-  val data = data_c
+@serializable
+@SerialVersionUID(0)
+class Node(uuid_c: Long,data_c: AnyRef) {
+  val uuid: Long   = uuid_c
+  val data: AnyRef = data_c
   override def toString(): String = "Node["+uuid+"]"
 }
 
 object Node {
-  def apply(data: AnyRef): Node = new Node(UUID.newUuid.toString,data)
-  def apply(uuid: String, data: AnyRef): Node = new Node(uuid,data)
+  def apply(data: AnyRef): Node = new Node(UUID.newUuid,data)
+  def apply(uuid: Long, data: AnyRef): Node = new Node(uuid,data)
 }

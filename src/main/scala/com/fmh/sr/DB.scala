@@ -27,6 +27,7 @@ import se.scalablesolutions.akka.persistence.mongo._
 import se.scalablesolutions.akka.stm.Transaction.Global._
 import Actor._
 import ScalaConfig._
+import java.io._
 
 class DB(dbName: String) extends Actor {
   self.lifeCycle = Some(LifeCycle(Permanent))
@@ -39,8 +40,24 @@ class DB(dbName: String) extends Actor {
     db = atomic { MongoStorage.getMap(dbName) }
   }
 
+  private def toByteArray(obj: AnyRef) : Array[Byte] = {
+    val bos = new ByteArrayOutputStream
+    val oos = new ObjectOutputStream(bos)
+    oos writeObject obj
+    oos.close
+    return bos.toByteArray
+  }
+
+  private def fromByteArray[T](arr: Array[Byte]) : T = {
+    val bis = new ByteArrayInputStream(arr)
+    val ois = new ObjectInputStream(bis)
+    return ois.readObject.asInstanceOf[T]
+  }
+
   def receive = {
-    case DB.Put(k,v) => self reply_? atomic { db.put(k,v) }
+/*    case DB.Put(k,v) => self reply_? atomic {
+      db.put(k,v) 
+    }
     case DB.PutNode(n) => self reply_? atomic { db.put(n.uuid,n.data) }
     case DB.Get(k) => self reply atomic { db.get(k) }
     case DB.GetNode(u) => self reply atomic {
@@ -49,7 +66,8 @@ class DB(dbName: String) extends Actor {
         case Some(data) => Node(u,data)
       }
     }
-    case DB.Clear => self reply_? atomic { db.clear }
+    case DB.Clear => self reply_? atomic { db.clear }*/
+    case x:String => println("got: "+x);
   }
 }
 
@@ -64,9 +82,9 @@ object DB {
     }
   }
 
-  case class Put(k:AnyRef, v:AnyRef)
+  case class Put(k: Long, v:AnyRef)
   case class PutNode(n:Node)
-  case class Get(k:AnyRef)
+  case class Get(k: Long)
   case class GetNode(n:String)
   case class Clear
 }
@@ -75,7 +93,7 @@ object DBTest {
   def apply() {
     val s = DB("sr.nodes")
 
-    s ! DB.Put("1","roman")
+/*    s ! DB.Put("1","roman")
     s !! DB.Put("2","hendrik")
     s !! DB.Put("1","fmh")
     
@@ -86,7 +104,7 @@ object DBTest {
     println(s !! DB.GetNode(n.uuid))
 
     println(s !! DB.Clear)
-    println(s !! DB.GetNode(n.uuid))
+    println(s !! DB.GetNode(n.uuid))*/
 
     System exit 0
   }

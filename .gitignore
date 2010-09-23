@@ -1,6 +1,7 @@
 *~
 *#
+*.tmp
 target
 logs
 config/akka.conf
-fmh
+
