@@ -27,8 +27,8 @@ import Actor._
 import ScalaConfig._
 import java.io._
 
-class DB(collName: String) extends Actor {
-  self.lifeCycle = Some(LifeCycle(Permanent))
+class DB(collName: String) /*extends Actor*/ {
+//  self.lifeCycle = Some(LifeCycle(Permanent))
 
   private var db = getDB
 
@@ -38,9 +38,9 @@ class DB(collName: String) extends Actor {
     return r
   }
   
-  override def postRestart(reason: Throwable) = {
+/*  override def postRestart(reason: Throwable) = {
     db = getDB
-  }
+  }*/
 
   private def toStr(obj: AnyRef): String = {
     val bos = new ByteArrayOutputStream
@@ -62,7 +62,20 @@ class DB(collName: String) extends Actor {
     }
   }
 
-  def receive = {
+  def tests() = {
+    //write
+    val k:Long = 12345
+    val v:String = "helo"
+    atomic { db.set(k.toString,toStr(v)) }
+
+    //read
+    atomic {db.get(k.toString) } match {
+      case Some(str) => println(fromStr[String](str))
+      case None => println(None)
+    }
+  }
+
+  /*def receive = {
     case DB.Put(k,v) => {
       atomic { db.set(k.toString,toStr(v)) }
     }
@@ -80,11 +93,11 @@ class DB(collName: String) extends Actor {
     //      }
     //    }
     //    case DB.Clear => self reply_? atomic { db.clear }
-  }
+  }*/
 }
 
 object DB {
-  def apply(dbName: String): ActorRef = actorOf(new DB(dbName)).start
+  /*def apply(dbName: String): ActorRef = actorOf(new DB(dbName)).start
 
   def create(dbName: String): ActorRef = {
     val storage = apply(dbName)
@@ -92,7 +105,7 @@ object DB {
       case (Some(())) => return storage
       case res => throw new RuntimeException("could not empty redis storage, res: "+res)
     }
-  }
+  }*/
 
   case class Put(k: Long, v:AnyRef)
   case class PutNode[T <: AnyRef](n:Node[T])
@@ -103,23 +116,29 @@ object DB {
 
 object DBTest {
   def apply() {
-    val s = DB("sr.nodes")
+    //val s = DB("sr.nodes")
+    
+    val q = new DB("sr.nodes")
 
+    q.tests
+
+    /*
     println(s !! DB.Put(1,"roman"))
     println(s !! DB.Put(2,"hendrik"))
     println(s !! DB.Put(1,"fmh"))
     
-    /*    val n = Node("ROMAN IST TOLL")
-     println(n)
+    val n = Node("ROMAN IST TOLL")
+    println(n)
 
-s !! DB.PutNode(n)
-println(s !! DB.GetNode(n.uuid))
+    s !! DB.PutNode(n)
+    println(s !! DB.GetNode(n.uuid))
 
-println(s !! DB.Clear)
-println(s !! DB.GetNode(n.uuid))*/
+    println(s !! DB.Clear)
+    println(s !! DB.GetNode(n.uuid))
 
     println(s !! DB.Get[String](1))
     println(s !! DB.Get[String](2))
+    */
 
     System exit 0
   }
