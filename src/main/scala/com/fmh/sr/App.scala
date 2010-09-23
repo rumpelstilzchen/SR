@@ -33,7 +33,7 @@ object App {
         TestClient(args(1))
       }
       case "--haltest" => {
-	println("################ SUPERVISOR TEST")
+	println("################ AKKA PERFORMANCE BENCHMARK")
 	HalTest(args(1))
       }
       case "--dbtest" => {

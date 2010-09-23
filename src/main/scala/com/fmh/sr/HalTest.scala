@@ -37,11 +37,11 @@ object HalTest {
   def apply(args:String) = {
     args match {
       case "server" => {
-	println("Starting Supervisor Test Server")
+	println("Starting Akka Performance Test Logging Server")
 	HalTestServer
       }
       case "client" => {
-	println("Starting Supervisor Test Client")
+	println("Starting Akka Performance Test Message Bouncer")
 	HalTestClient
       }
     }
