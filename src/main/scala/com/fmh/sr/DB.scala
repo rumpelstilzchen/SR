@@ -22,18 +22,19 @@ package com.fmh.sr
 import se.scalablesolutions.akka.stm.Transaction.Global._
 import se.scalablesolutions.akka.config._
 import se.scalablesolutions.akka.actor._
-import com.redis._
+import redis.clients.jedis._
 import Actor._
 import ScalaConfig._
 import java.io._
+import java.nio.charset.Charset
 
 class DB(collName: String) /*extends Actor*/ {
 //  self.lifeCycle = Some(LifeCycle(Permanent))
 
   private var db = getDB
 
-  private def getDB() :RedisClient = {
-    val r = atomic { new RedisClient("localhost",6379) }
+  private def getDB() :Jedis = {
+    val r = atomic { new Jedis("localhost") }
     log.info("Connected to Redis DB...")
     return r
   }
@@ -47,19 +48,14 @@ class DB(collName: String) /*extends Actor*/ {
     val oos = new ObjectOutputStream(bos)
     oos.writeObject(obj)
     oos.close
-    return new String(bos.toByteArray)
+    return new String(bos.toByteArray,Charset.forName("UTF-8"))
   }
 
-  private def fromStr[T](key: String): Option[T] = {
-    db.get(key) match {
-      case Some(s) => {
-	val bytes = s.getBytes
-	val bis = new ByteArrayInputStream(bytes)
-	val ois = new ObjectInputStream(bis)
-	return Some(ois.readObject.asInstanceOf[T])
-      }
-      case None => return None
-    }
+  private def fromStr[T](str: String) :T = {
+    val bytes = str.getBytes(Charset.forName("UTF-8"))
+    val bis = new ByteArrayInputStream(bytes)
+    val ois = new ObjectInputStream(bis)
+    return ois.readObject.asInstanceOf[T]
   }
 
   def tests() = {
@@ -69,9 +65,13 @@ class DB(collName: String) /*extends Actor*/ {
     atomic { db.set(k.toString,toStr(v)) }
 
     //read
-    atomic {db.get(k.toString) } match {
-      case Some(str) => println(fromStr[String](str))
-      case None => println(None)
+    val r = atomic {db.get(k.toString) }
+    if(r==null)
+      println(null)
+    else {
+      for(val i <- 0 until r.size)
+	println(r(i));
+      println(fromStr[String](r))
     }
   }
 
