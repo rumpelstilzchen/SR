@@ -39,6 +39,11 @@
       <name>Scala-Tools Maven2 Repository</name>
       <url>http://scala-tools.org/repo-releases</url>
     </repository>
+    <repository>
+      <id>base64</id>
+      <name>Base 64 Repo</name>
+      <url>http://repo1.maven.org/maven2/net/iharder/base64/ </url>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -59,6 +64,11 @@
       <groupId>se.scalablesolutions.akka</groupId>
       <artifactId>akka-remote_2.8.0</artifactId>
       <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>net.iharder</groupId>
+      <artifactId>base64</artifactId>
+      <version>2.3.8</version>
     </dependency>
     <dependency>
       <groupId>redis.clients</groupId>

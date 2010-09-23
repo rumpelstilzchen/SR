@@ -27,11 +27,13 @@ import Actor._
 import ScalaConfig._
 import java.io._
 import java.nio.charset.Charset
+import net.iharder._
 
-class DB(collName: String) /*extends Actor*/ {
-//  self.lifeCycle = Some(LifeCycle(Permanent))
+class DB(collName: String) extends Actor {
+  self.lifeCycle = Some(LifeCycle(Permanent))
 
   private var db = getDB
+  
 
   private def getDB() :Jedis = {
     val r = atomic { new Jedis("localhost") }
@@ -39,30 +41,28 @@ class DB(collName: String) /*extends Actor*/ {
     return r
   }
   
-/*  override def postRestart(reason: Throwable) = {
+  override def postRestart(reason: Throwable) = {
     db = getDB
-  }*/
+  }
 
-  private def toStr(obj: AnyRef): String = {
-    val bos = new ByteArrayOutputStream
-    val oos = new ObjectOutputStream(bos)
-    oos.writeObject(obj)
-    oos.close
-    return new String(bos.toByteArray,Charset.forName("UTF-8"))
+  private def toStr(obj: Serializable): String = {
+    return Base64 encodeObject obj
   }
 
   private def fromStr[T](str: String) :T = {
-    val bytes = str.getBytes(Charset.forName("UTF-8"))
-    val bis = new ByteArrayInputStream(bytes)
-    val ois = new ObjectInputStream(bis)
-    return ois.readObject.asInstanceOf[T]
+    return Base64.decodeToObject(str).asInstanceOf[T]
   }
 
-  def tests() = {
+/*  def tests() = {
     //write
     val k:Long = 12345
     val v:String = "helo"
     atomic { db.set(k.toString,toStr(v)) }
+
+    //test
+    println("###test")
+    println(fromStr[String](toStr("hello")))
+    println("###/test")
 
     //read
     val r = atomic {db.get(k.toString) }
@@ -73,17 +73,18 @@ class DB(collName: String) /*extends Actor*/ {
 	println(r(i));
       println(fromStr[String](r))
     }
-  }
+  }*/
 
-  /*def receive = {
+  def receive = {
     case DB.Put(k,v) => {
-      atomic { db.set(k.toString,toStr(v)) }
+      self reply_? atomic { db.set(k.toString,toStr(v)) }
     }
     case (x:DB.Get[t]) => {
-      atomic {db.get(x.k.toString) } match {
-	case Some(str) => self reply fromStr[t](str)
-	case None => self reply None
-      }
+      val res = atomic {db.get(x.k.toString) } 
+      if(res==null)
+	self reply None
+      else
+	self reply fromStr[t](res)
     }
     //    case DB.PutNode(n) => atomic { self reply_? (db += n.uuid -> n.data) }
     //    case x:DB.GetNode[t](u) => self reply atomic {
@@ -93,11 +94,11 @@ class DB(collName: String) /*extends Actor*/ {
     //      }
     //    }
     //    case DB.Clear => self reply_? atomic { db.clear }
-  }*/
+  }
 }
 
 object DB {
-  /*def apply(dbName: String): ActorRef = actorOf(new DB(dbName)).start
+  def apply(dbName: String): ActorRef = actorOf(new DB(dbName)).start
 
   def create(dbName: String): ActorRef = {
     val storage = apply(dbName)
@@ -105,10 +106,10 @@ object DB {
       case (Some(())) => return storage
       case res => throw new RuntimeException("could not empty redis storage, res: "+res)
     }
-  }*/
+  }
 
-  case class Put(k: Long, v:AnyRef)
-  case class PutNode[T <: AnyRef](n:Node[T])
+  case class Put(k: Long, v:Serializable)
+  case class PutNode[T <: Serializable](n:Node[T])
   case class Get[T](k: Long)
   case class GetNode[T](n:String)
   case class Clear
@@ -116,30 +117,25 @@ object DB {
 
 object DBTest {
   def apply() {
-    //val s = DB("sr.nodes")
+    val s = DB("sr.nodes")
     
-    val q = new DB("sr.nodes")
 
-    q.tests
-
-    /*
     println(s !! DB.Put(1,"roman"))
     println(s !! DB.Put(2,"hendrik"))
     println(s !! DB.Put(1,"fmh"))
     
-    val n = Node("ROMAN IST TOLL")
-    println(n)
+    //val n = Node("ROMAN IST TOLL")
+    //println(n)
 
-    s !! DB.PutNode(n)
+/*    s !! DB.PutNode(n)
     println(s !! DB.GetNode(n.uuid))
 
     println(s !! DB.Clear)
-    println(s !! DB.GetNode(n.uuid))
+    println(s !! DB.GetNode(n.uuid))*/
 
     println(s !! DB.Get[String](1))
     println(s !! DB.Get[String](2))
-    */
-
+    
     System exit 0
   }
 }
