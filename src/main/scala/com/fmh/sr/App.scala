@@ -32,14 +32,14 @@ object App {
         println("################ CLIENT")
         TestClient(args(1))
       }
-      case "--haltest" => {
+      /*case "--haltest" => {
 	println("################ AKKA PERFORMANCE BENCHMARK")
 	HalTest(args(1))
       }
       case "--dbtest" => {
         println("################ DB Test")
         DBTest()
-      }
+      }*/
     }
   }
 }
