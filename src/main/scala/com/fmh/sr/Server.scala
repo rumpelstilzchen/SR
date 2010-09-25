@@ -57,7 +57,7 @@ class RemoteClientShutter extends Actor {
       c.shutdown
     }
     case _ => ;
-  }  
+  } 
 }
 
 object Server {
