@@ -71,9 +71,9 @@
       <version>0.9.0</version>
     </dependency>
     <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.13</version>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>8.4-701.jdbc4</version>
     </dependency>
     <dependency>
       <groupId>net.iharder</groupId>

@@ -18,7 +18,7 @@ SR is supposed to become a video game in mid-future. Currently, though, it's jus
 incomplete bunch of isolated components we're implementing.
 The following documentation is meant for developers:
 
-You'll need maven, sbt and mysql (and of course git) to compile and test SR.
+You'll need maven, sbt and postgresql (and of course git) to compile and test SR.
 
 Akka has to be trunk for the remote actors to work properly:
 
@@ -26,20 +26,20 @@ Akka has to be trunk for the remote actors to work properly:
 # cd akka
 # sbt update publish-local publish
 
-Now install mysql and configure it, so that it listens on Socket 3306
+Now install postgresql (>=8.x), configure and _start_ it.
+You can create the sr user and it's database with:
+# su
+# su - postgres
+# createuser -P sr
+(make it no superuser, but give it the permission to create new databases)
+# createdb -O sr sr
 
 Next, clone SR:
-
 # git clone git://github.com/rumpelstilzchen/SR.git
 # cd SR
 # mvn clean compile package
 
-You can run the scripts now.
-To create a database, run:
-# ./create_database root
-
 To create the tables, run:
-# ./dbcmd <mysql-user> <mysql-pw> create_tables
-# ./dbcmd <mysql-user> <mysql-pw> <cmd>
+# ./dbcmd sr <pw> create_tables
 
 Finished. Happy hacking.

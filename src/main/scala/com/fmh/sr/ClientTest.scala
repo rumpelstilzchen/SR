@@ -39,10 +39,10 @@ object TestClient {
 
 
     def receive = {
-      case _:SEND_PING => {
+      case SEND_PING() => {
 	remAkt ! PING()
       }
-      case _:PONG => {
+      case PONG() => {
 	println("got pong")
       }
       case UNKNOWN_MSG(msg) => {

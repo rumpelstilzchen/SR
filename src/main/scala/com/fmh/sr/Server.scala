@@ -44,7 +44,7 @@ object Server {
     self.id = UGen.newUUID.toString
 
     def receive = {
-      case PING => {
+      case PING() => {
 	println("got ping")
 	self.sender match {
           case Some(snd) => {

@@ -26,14 +26,16 @@ import org.scalaquery.ql._
 @serializable
 case class User(id: Int, first: String
                ,last: String, nick: String
-	       ,email: String, pw: String)
+	       ,email: String, password: String)
 
 object Users extends Table[User]("users") {
-  def id = column[Int]("id", O PrimaryKey, O AutoInc, O NotNull)
+  def id = column[Int]("id", O PrimaryKey, O AutoInc)
   def first = column[String]("first", O NotNull)
   def last = column[String]("last", O NotNull)
   def nick = column[String]("nick", O NotNull)
   def email = column[String]("email", O NotNull)
-  def pw = column[String]("pw", O NotNull)
-  def * = id ~ first ~ last ~ nick ~ email ~ pw <> (User, User.unapply _)
+  def password = column[String]("password", O NotNull)
+  def * = id ~ first ~ last ~ nick ~ email ~ password <> (User, User.unapply _)
+
+  def noID = first ~ last ~ nick ~ email ~ password
 }

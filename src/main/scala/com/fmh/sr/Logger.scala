@@ -24,6 +24,11 @@ import Actor._
 
 object Logger {
   def apply(msg:String) {
-    println("###INFO: "+msg+"###")
+    println(prefix+"INFO: "+msg+postfix)
   }
+  def apply(msg:Any) {
+    println(prefix+"INFO: "+msg.toString+postfix)
+  }
+  private val prefix = "###"
+  private val postfix = " ###"
 }

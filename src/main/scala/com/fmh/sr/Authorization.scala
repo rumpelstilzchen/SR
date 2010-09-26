@@ -21,6 +21,9 @@ package com.fmh.sr
 
 import se.scalablesolutions.akka.actor._
 import Actor._
+import org.scalaquery.ql.extended.PostgresDriver.Implicit._
+import org.scalaquery.session._
+import org.scalaquery.session.Database.threadLocalSession
 
 object Authorization {
   val actor = actorOf[AuthorizationActor].start
@@ -31,6 +34,11 @@ object Authorization {
   //actor definition
   private class AuthorizationActor extends Actor {
     def receive = {
+      case AUTH(nick,pw) => {
+	val query = for(u <- Users if u.nick is nick) yield u.nick ~ u.password
+	Logger(DB(query.list))
+	self reply_? SUCC()
+      }
       case msg => {
 	println("actor Authorization got unknown msg "+msg.toString+", exiting")
 	System exit 1

@@ -26,62 +26,57 @@ import org.scalaquery.ql.TypeMapper._
 import org.scalaquery.ql._
 import org.scalaquery.session._
 import org.scalaquery.session.Database.threadLocalSession
-//import org.scalaquery.ql.basic.BasicDriver.Implicit._
-import org.scalaquery.ql.extended.MySQLDriver.Implicit._
+import org.scalaquery.ql.extended.PostgresDriver.Implicit._
 
-object Database {
-  def actor(): ActorRef = akt match {
-    case Some(a) => return a
+object DB {
+  //returns a Session if the database is initialized
+  def apply[T](f: => T): T = db match {
+    case Some(d) => return d withSession f
     case None => throw new RuntimeException("Database not yet initialized");
   }
 
-  def initialize(user:String, pw:String) = akt match {
-    case None => akt = Some(actorOf(new DBActor(user,pw)).start)
+  def initialize(user:String, pw:String) = db match {
+    case None => db = Some(org.scalaquery.session.Database.forURL(db_url,
+								  user = user,
+								  password = pw,
+								  driver = driver))
     case Some(_) => throw new RuntimeException("Database already inizialized")
   }
 
-  private var akt:Option[ActorRef] = None
-  
-
-  //actor msgs
-  case class CREATE_TABLE(tableDDL: DDL)
-
-  private class DBActor(user:String, pw:String) extends Actor {
-    def receive = {
-      case CREATE_TABLE(ddl) => {
-	Logger("CREATING TABLE")
-	try {
-	  db withSession {
-	    ddl.create
-	  }
-	  Logger("TABLE CREATED")
-	  self reply_? SUCC()
-	} catch {
-	  case e:com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException => {
-	    Logger("TABLE CREATION FAILED DUE TO SQL-EXCEPTION")
-	    self reply_? FAIL()
-	  }
-	}
-      }
-    }
-
-    val db_name = "sr"
-    val db_url = "jdbc:mysql://localhost/sr"
-    val driver = "com.mysql.jdbc.Driver"
-    val db = org.scalaquery.session.Database.forURL(db_url,
-						    user = user,
-						    password = pw,
-						    driver = driver)
+  //an utility method to create a table
+  def createTable[T](table: Table[T]) = DB {
+    table.ddl.create
   }
+
+  def dropTable[T](table: Table[T]) = DB {
+    table.ddl.drop
+  }
+
+  private var db:Option[Database] = None
+  private val db_name = "sr"
+  private val db_url = "jdbc:postgresql:sr"
+  private val driver = "org.postgresql.Driver"
 }
 
 object DBCmd {
   def apply(user:String, pw:String, cmd:String = "none") = {
-    Database.initialize(user,pw)
-    val db = Database.actor
+    DB.initialize(user,pw)
     cmd match {
+      case "test" => {
+	Authorization.actor !! AUTH("halconnen","pw2")
+	System exit 0
+      }
+      case "add_testusers" => {
+	DB {
+	  Users.noID insert ("Roman","Naumann","fmh","a@b.de","pw1")
+	  Users.noID insert ("Hendrik","Hilken","halconnen","a@b.de","pw2")
+	}
+      }
       case "create_tables" => {
-	db ! new Database.CREATE_TABLE(Users.ddl)
+	DB createTable Users
+      }
+      case "drop_tables" => {
+	DB dropTable Users
       }
       case "none" => {
 	Logger("Nothing to do")
