@@ -25,44 +25,53 @@ import se.scalablesolutions.akka.config.OneForOneStrategy
 import se.scalablesolutions.akka.config.ScalaConfig._
 import Actor._
 
-class ServerActor extends Actor {
+object Server {
+  var actor: ActorRef = null
 
-  self.faultHandler = Some(OneForOneStrategy(5, 5000))
-  self.trapExit = List(classOf[Exception])
-
-  self.id = UGen.newUUID.toString
-
-  def receive = {
-    case "ping" => {
-      println("got ping")
-      self.sender match {
-        case Some(snd) => {
-          val remC = RemoteClient.clientFor(snd.getHomeAddress)
-          remC.addListener(actorOf[RemoteClientShutter].start)
-          remC.connect
-        }
-        case None => ;
-      }
-      self reply "pong"
-    }
+  def start(host_ip: String) = {
+    RemoteNode.start(host_ip, 9999)
+    actor = actorOf[ServerActor]
+    RemoteNode.register("srv:service", actor)
   }
 
-  private var remShutClients: List[RemoteClient] = List()
-}
+  def apply() = actor;
 
-class RemoteClientShutter extends Actor {
-  def receive = {
-    case RemoteClientDisconnected(c) => {
-      log.info("SHUTTING DOWN!")
-      c.shutdown
+  private class ServerActor extends Actor {
+
+    self.faultHandler = Some(OneForOneStrategy(5, 5000))
+    self.trapExit = List(classOf[Exception])
+
+    self.id = UGen.newUUID.toString
+
+    def receive = {
+      case _:PING => {
+	println("got ping")
+	self.sender match {
+          case Some(snd) => {
+            val remC = RemoteClient.clientFor(snd.getHomeAddress)
+            remC.addListener(actorOf[RemoteClientShutter].start)
+            remC.connect
+          }
+          case None => ;
+	}
+	self reply new PONG
+      }
+      case UNKNOWN_MSG(msg) => log.info("client could not deal with msg: "+msg);
+      case msg => {
+	log.info("received unknown msg from client")
+	self reply_? new UNKNOWN_MSG(msg.toString)
+      }
     }
-    case _ => ;
-  } 
-}
 
-object Server {
-  def apply(host_ip: String) = {
-    RemoteNode.start(host_ip, 9999)
-    RemoteNode.register("srv:service", actorOf[ServerActor])
+    private var remShutClients: List[RemoteClient] = List()
+  }
+  class RemoteClientShutter extends Actor {
+    def receive = {
+      case RemoteClientDisconnected(c) => {
+	log.info("SHUTTING DOWN!")
+	c.shutdown
+      }
+      case _ => ;
+    } 
   }
 }

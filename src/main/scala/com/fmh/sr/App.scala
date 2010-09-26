@@ -19,14 +19,13 @@
 
 package com.fmh.sr
 
-
 object App {
   def main(args: Array[String]) {
     println("Starting Program")
     args(0) match {
       case "--server" => {
         println("################ SERVER")
-        Server(args(1))
+        Server start args(1)
       }
       case "--client" => {
         println("################ CLIENT")
@@ -35,11 +34,11 @@ object App {
       /*case "--haltest" => {
 	println("################ AKKA PERFORMANCE BENCHMARK")
 	HalTest(args(1))
-      }
+      }*/
       case "--dbtest" => {
         println("################ DB Test")
         DBTest()
-      }*/
+      }
     }
   }
 }

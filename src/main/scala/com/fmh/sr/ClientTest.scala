@@ -25,22 +25,29 @@ import se.scalablesolutions.akka.config.OneForOneStrategy
 import se.scalablesolutions.akka.config.ScalaConfig._
 import Actor._
 
-class TestClientActor(val srvIp:String) extends Actor {
-  val remAkt = RemoteClient.actorFor("srv:service",srvIp,9999)
-
-  def receive = {
-    case ("send ping") => {
-      remAkt ! "ping"
-    }
-    case "pong" => {
-      println("got pong")
-    }
-  }
-}
 
 object TestClient {
   def apply(srv_ip:String) = {
     val client = actorOf(new TestClientActor(srv_ip)).start
-    client ! "send ping"
+    client ! new SEND_PING
+  }
+
+  private case class SEND_PING
+
+  private class TestClientActor(val srvIp:String) extends Actor {
+    val remAkt = RemoteClient.actorFor("srv:service",srvIp,9999)
+
+
+    def receive = {
+      case _:SEND_PING => {
+	remAkt ! new PING
+      }
+      case _:PONG => {
+	println("got pong")
+      }
+      case UNKNOWN_MSG(msg) => {
+	println("server couldn't deal with msg: "+msg);
+      }
+    }
   }
 }
