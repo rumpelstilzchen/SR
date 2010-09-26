@@ -19,34 +19,11 @@
 
 package com.fmh.sr
 
-object App {
-  def main(args: Array[String]) {
-    println("Starting Program")
-    args(0) match {
-      case "--server" => {
-        println("################ SERVER")
-        Server start args(1)
-      }
-      case "--client" => {
-        println("################ CLIENT")
-        TestClient(args(1))
-      }
-      /*case "--haltest" => {
-	println("################ AKKA PERFORMANCE BENCHMARK")
-	HalTest(args(1))
-      }*/
-      case "--dbtest" => {
-        println("################ DB Test")
-	val user = args(1)
-	val pw = args(2)
-	if(args.size > 3) {
-	  val cmd = args(3);
-          DBCmd(user,pw,cmd)
-	} else {
-	  DBCmd(user,pw)
-	}
-      }
-    }
+import se.scalablesolutions.akka.actor.Actor
+import Actor._
+
+object Logger {
+  def apply(msg:String) {
+    println("###INFO: "+msg+"###")
   }
 }
-

@@ -14,38 +14,32 @@ Copyright (c) 2010 Roman Naumann
 	  You should have received a copy of the GNU General Public License
 	  along with SR.  If not, see <http://www.gnu.org/licenses/ >.
 
-SR uses the Scala Distribution, which is released under it's own license:
+SR is supposed to become a video game in mid-future. Currently, though, it's just an 
+incomplete bunch of isolated components we're implementing.
+The following documentation is meant for developers:
 
-    Copyright (c) 2002-2010 EPFL, Lausanne, unless otherwise specified.
-    All rights reserved.
+You'll need maven, sbt and mysql (and of course git) to compile and test SR.
 
-    This software was developed by the Programming Methods Laboratory of the
-    Swiss Federal Institute of Technology (EPFL), Lausanne, Switzerland.
+Akka has to be trunk for the remote actors to work properly:
 
-    Permission to use, copy, modify, and distribute this software in source
-    or binary form for any purpose with or without fee is hereby granted,
-    provided that the following conditions are met:
+# git clone git://github.com/jboner/akka.git
+# cd akka
+# sbt update publish-local publish
 
-     1. Redistributions of source code must retain the above copyright
-        notice, this list of conditions and the following disclaimer.
+Now install mysql and configure it, so that it listens on Socket 3306
 
-     2. Redistributions in binary form must reproduce the above copyright
-        notice, this list of conditions and the following disclaimer in the
-        documentation and/or other materials provided with the distribution.
+Next, clone SR:
 
-     3. Neither the name of the EPFL nor the names of its contributors
-        may be used to endorse or promote products derived from this
-        software without specific prior written permission.
+# git clone git://github.com/rumpelstilzchen/SR.git
+# cd SR
+# mvn clean compile package
 
+You can run the scripts now.
+To create a database, run:
+# ./create_database root
 
-    THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
-    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-    ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
-    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-    SUCH DAMAGE.
+To create the tables, run:
+# ./dbcmd <mysql-user> <mysql-pw> create_tables
+# ./dbcmd <mysql-user> <mysql-pw> <cmd>
+
+Finished. Happy hacking.

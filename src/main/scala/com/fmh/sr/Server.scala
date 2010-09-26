@@ -44,7 +44,7 @@ object Server {
     self.id = UGen.newUUID.toString
 
     def receive = {
-      case _:PING => {
+      case PING => {
 	println("got ping")
 	self.sender match {
           case Some(snd) => {
@@ -54,12 +54,12 @@ object Server {
           }
           case None => ;
 	}
-	self reply new PONG
+	self reply PONG()
       }
       case UNKNOWN_MSG(msg) => log.info("client could not deal with msg: "+msg);
       case msg => {
 	log.info("received unknown msg from client")
-	self reply_? new UNKNOWN_MSG(msg.toString)
+	self reply_? UNKNOWN_MSG(msg.toString)
       }
     }
 

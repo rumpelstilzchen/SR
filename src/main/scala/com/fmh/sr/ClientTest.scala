@@ -29,10 +29,10 @@ import Actor._
 object TestClient {
   def apply(srv_ip:String) = {
     val client = actorOf(new TestClientActor(srv_ip)).start
-    client ! new SEND_PING
+    client ! SEND_PING()
   }
 
-  private case class SEND_PING
+  private case class SEND_PING()
 
   private class TestClientActor(val srvIp:String) extends Actor {
     val remAkt = RemoteClient.actorFor("srv:service",srvIp,9999)
@@ -40,7 +40,7 @@ object TestClient {
 
     def receive = {
       case _:SEND_PING => {
-	remAkt ! new PING
+	remAkt ! PING()
       }
       case _:PONG => {
 	println("got pong")

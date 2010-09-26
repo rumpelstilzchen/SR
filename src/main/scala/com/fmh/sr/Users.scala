@@ -19,34 +19,21 @@
 
 package com.fmh.sr
 
-object App {
-  def main(args: Array[String]) {
-    println("Starting Program")
-    args(0) match {
-      case "--server" => {
-        println("################ SERVER")
-        Server start args(1)
-      }
-      case "--client" => {
-        println("################ CLIENT")
-        TestClient(args(1))
-      }
-      /*case "--haltest" => {
-	println("################ AKKA PERFORMANCE BENCHMARK")
-	HalTest(args(1))
-      }*/
-      case "--dbtest" => {
-        println("################ DB Test")
-	val user = args(1)
-	val pw = args(2)
-	if(args.size > 3) {
-	  val cmd = args(3);
-          DBCmd(user,pw,cmd)
-	} else {
-	  DBCmd(user,pw)
-	}
-      }
-    }
-  }
-}
+import org.scalaquery.ql.extended.{ExtendedTable => Table}
+import org.scalaquery.ql.TypeMapper._
+import org.scalaquery.ql._
 
+@serializable
+case class User(id: Int, first: String
+               ,last: String, nick: String
+	       ,email: String, pw: String)
+
+object Users extends Table[User]("users") {
+  def id = column[Int]("id", O PrimaryKey, O AutoInc, O NotNull)
+  def first = column[String]("first", O NotNull)
+  def last = column[String]("last", O NotNull)
+  def nick = column[String]("nick", O NotNull)
+  def email = column[String]("email", O NotNull)
+  def pw = column[String]("pw", O NotNull)
+  def * = id ~ first ~ last ~ nick ~ email ~ pw <> (User, User.unapply _)
+}

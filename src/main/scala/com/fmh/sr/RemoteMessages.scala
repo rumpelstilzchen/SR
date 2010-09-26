@@ -19,34 +19,21 @@
 
 package com.fmh.sr
 
-object App {
-  def main(args: Array[String]) {
-    println("Starting Program")
-    args(0) match {
-      case "--server" => {
-        println("################ SERVER")
-        Server start args(1)
-      }
-      case "--client" => {
-        println("################ CLIENT")
-        TestClient(args(1))
-      }
-      /*case "--haltest" => {
-	println("################ AKKA PERFORMANCE BENCHMARK")
-	HalTest(args(1))
-      }*/
-      case "--dbtest" => {
-        println("################ DB Test")
-	val user = args(1)
-	val pw = args(2)
-	if(args.size > 3) {
-	  val cmd = args(3);
-          DBCmd(user,pw,cmd)
-	} else {
-	  DBCmd(user,pw)
-	}
-      }
-    }
-  }
-}
+//ping pong
+@serializable case class PING()
 
+@serializable case class PONG()
+
+//general
+@serializable case class SUCC()
+@serializable case class FAIL()
+@serializable case class UNKNOWN_MSG(msg:String)
+
+//authorization
+@serializable case class AUTH(nick: String, pw: String)
+@serializable case class AUTH_SUCC
+@serializable case class AUTH_FAIL
+
+//user creation / deletion
+@serializable case class NEW_USER(u:User)
+@serializable case class REM_USER(a:AUTH)
