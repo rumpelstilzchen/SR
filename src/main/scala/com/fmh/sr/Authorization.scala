@@ -40,10 +40,11 @@ object Authorization {
 	val query = for {
 	  n <- Parameters[String]
 	  u <- Users if u.nick is n
-	} yield u.nick ~ u.password
-	Logger(query.selectStatement)
-        Logger(DB(query(nick).list))
-	self reply_? SUCC()
+	} yield u.password
+	if(DB {query(nick).first} == pw)
+	  self reply_? AUTH_SUCC()
+	else
+	  self reply_? AUTH_FAIL()
       }
       case msg => {
 	println("actor Authorization got unknown msg "+msg.toString+", exiting")

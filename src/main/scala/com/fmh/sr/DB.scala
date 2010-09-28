@@ -63,7 +63,8 @@ object DBCmd {
     DB.initialize(user,pw)
     cmd match {
       case "test" => {
-	Authorization.actor !! AUTH("halconnen","pw2")
+	val reply = Authorization.actor !! AUTH("halconnen","pw2")
+	Logger("REPLY: "+reply)
 	System exit 0
       }
       case "add_testusers" => {

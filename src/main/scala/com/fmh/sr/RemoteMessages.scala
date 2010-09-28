@@ -31,8 +31,8 @@ package com.fmh.sr
 
 //authorization
 @serializable case class AUTH(nick: String, pw: String)
-@serializable case class AUTH_SUCC
-@serializable case class AUTH_FAIL
+@serializable case class AUTH_SUCC()
+@serializable case class AUTH_FAIL()
 
 //user creation / deletion
 @serializable case class NEW_USER(u:User)
