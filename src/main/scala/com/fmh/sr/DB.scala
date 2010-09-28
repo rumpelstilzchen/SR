@@ -69,7 +69,7 @@ object DBCmd {
       case "add_testusers" => {
 	DB {
 	  Users.noID insert ("Roman","Naumann","fmh","a@b.de","pw1")
-	  Users.noID insert ("Hendrik","Hilken","halconnen","a@b.de","pw2")
+	  Users.noID insert ("Muh","Kuh","halconnen","a@b.de","pw2")
 	}
       }
       case "create_tables" => {
