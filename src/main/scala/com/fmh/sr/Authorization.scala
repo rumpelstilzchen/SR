@@ -21,9 +21,11 @@ package com.fmh.sr
 
 import se.scalablesolutions.akka.actor._
 import Actor._
-import org.scalaquery.ql.extended.PostgresDriver.Implicit._
+import org.scalaquery.ql._
+import org.scalaquery.ql.TypeMapper._
 import org.scalaquery.session._
 import org.scalaquery.session.Database.threadLocalSession
+import org.scalaquery.ql.extended.PostgresDriver.Implicit._
 
 object Authorization {
   val actor = actorOf[AuthorizationActor].start
@@ -35,8 +37,12 @@ object Authorization {
   private class AuthorizationActor extends Actor {
     def receive = {
       case AUTH(nick,pw) => {
-	val query = for(u <- Users if u.nick is nick) yield u.nick ~ u.password
-	Logger(DB(query.list))
+	val query = for {
+	  n <- Parameters[String]
+	  u <- Users if u.nick is n
+	} yield u.nick ~ u.password
+	Logger(query(nick).selectStatement)
+        Logger(DB(query(nick).list))
 	self reply_? SUCC()
       }
       case msg => {
