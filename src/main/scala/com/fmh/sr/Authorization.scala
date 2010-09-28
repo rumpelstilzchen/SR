@@ -41,7 +41,7 @@ object Authorization {
 	  n <- Parameters[String]
 	  u <- Users if u.nick is n
 	} yield u.nick ~ u.password
-	Logger(query(nick).selectStatement)
+	Logger(query.selectStatement)
         Logger(DB(query(nick).list))
 	self reply_? SUCC()
       }
